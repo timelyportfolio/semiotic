@@ -67,7 +67,8 @@
     "reactstrap": "github:jameswomack/reactstrap#react-popper_react-dom-16",
     "tap-difflet": "0.4.0",
     "tap-notify": "1.0.0",
-    "tape": "4.4.0"
+    "tape": "4.4.0",
+    "webpack": "^3.7.1"
   },
   "peerDependencies": {
     "react": "^15.0.0 || ^16.0.0",
