@@ -1,11 +1,10 @@
-<style>
-  body {
-    margin : 0;
-  }
-  iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
- </style>
-<iframe src='examples/dist/index.html'></iframe>
+<script src = "https://unpkg.com/react/umd/react.production.min.js"></script>
+<script src = "https://unpkg.com/react-dom/umd/react-dom.production.min.js"></script>
+<script src = "./dist/semiotic.js"></script>
+<script src = "./dotplot.js"></script>
+
+<body>
+  <script>
+    ReactDOM.render(dotplot, document.body)
+  </script>
+</body>
