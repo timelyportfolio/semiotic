@@ -1,6 +1,6 @@
 {
   "name": "semiotic",
-  "version": "1.1.6",
+  "version": "1.1.8",
   "description": "The semiotic JavaScript data visualization framework",
   "main": "lib/index.js",
   "files": [
@@ -10,7 +10,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "lint": "eslint src",
+    "lint": "eslint src/components",
     "prebuild": "babel src/components --out-dir lib --ignore test.js",
     "create-release-branch": "sh ./scripts/create-release-branch",
     "publish-release": "sh ./scripts/publish-release",
@@ -21,9 +21,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/emeeks/semiotic.git"
-  },
-  "config": {
-    "is-component": "y"
   },
   "author": {
     "name": "Elijah Meeks",
@@ -98,6 +95,7 @@
     "d3-shape": "1.0.3",
     "d3-transition": "1.0.3",
     "d3-voronoi": "1.0.2",
+    "element-resize-event": "2.0.9",
     "flubber": "0.4.0",
     "graphology": "0.10.2",
     "graphology-communities-louvain": "0.1.1",
@@ -106,11 +104,12 @@
     "json2csv": "3.7.3",
     "lodash.flatten": "4.4.0",
     "lodash.uniq": "4.5.0",
+    "material-design-icons-svg": "1.1.2",
     "moment": "2.10.6",
     "numeral": "^1.5.3",
     "prop-types": "15.6.0",
     "react-annotation": "0.0.1-4",
-    "react-resize-detector": "0.6.0"
+    "svg-path-bounding-box": "1.0.4"
   },
   "nyc": {
     "exclude": [

@@ -43,6 +43,7 @@ import {
 } from "./constants/coordinateNames";
 import { calculateDataExtent, stringToFn } from "./data/dataFunctions";
 import { filterDefs } from "./constants/jsx";
+import { xyFrameChangeProps } from "./constants/frame_props";
 
 import PropTypes from "prop-types";
 
@@ -53,18 +54,13 @@ for (let i = 32; i > 0; --i)
 
 const xyframeSettings = ["margin"];
 
-function linetypeChange(oldProps, newProps) {
-  const oLT = oldProps.lineType || oldProps.customLineType;
-  const nLT = newProps.lineType || newProps.customLineType;
-  if (!oLT && !nLT) {
-    return false;
-  } else if (typeof oLT === "string" && oLT === nLT) {
-    return false;
-  } else if (oLT && nLT && oLT.type && nLT.type && oLT.type === nLT.type) {
-    return false;
-  }
-  return true;
-}
+const projectedCoordinateNames = {
+  y: projectedY,
+  x: projectedX,
+  yMiddle: projectedYMiddle,
+  yTop: projectedYTop,
+  yBottom: projectedYBottom
+};
 
 function mapParentsToPoints(fullDataset) {
   return fullDataset.map(d => {
@@ -79,6 +75,16 @@ function mapParentsToPoints(fullDataset) {
 }
 
 class XYFrame extends React.Component {
+  static defaultProps = {
+    annotations: [],
+    foregroundGraphics: [],
+    annotationSettings: {},
+    size: [500, 500],
+    className: "",
+    lineType: "line",
+    name: "xyframe"
+  };
+
   constructor(props) {
     super(props);
 
@@ -120,26 +126,19 @@ class XYFrame extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (!this.state.dataVersion || !this.state.fullDataset) {
+    if (
+      (this.state.dataVersion &&
+        this.state.dataVersion !== nextProps.dataVersion) ||
+      !this.state.fullDataset
+    ) {
       this.calculateXYFrame(nextProps);
     } else if (
-      linetypeChange(this.props, nextProps) ||
-      this.state.dataVersion !== nextProps.dataVersion ||
-      (this.props.xExtent && !nextProps.xExtent) ||
-      (this.props.yExtent && !nextProps.yExtent) ||
-      (!this.props.xExtent && nextProps.xExtent) ||
-      (!this.props.yExtent && nextProps.yExtent) ||
-      (this.props.xExtent &&
-        nextProps.xExtent &&
-        (this.props.xExtent[0] !== nextProps.xExtent[0] ||
-          this.props.xExtent[1] !== nextProps.xExtent[1])) ||
-      (this.props.yExtent &&
-        nextProps.yExtent &&
-        (this.props.yExtent[0] !== nextProps.yExtent[0] ||
-          this.props.yExtent[1] !== nextProps.yExtent[1])) ||
-      this.props.name !== nextProps.name ||
-      this.props.size[0] !== nextProps.size[0] ||
-      this.props.size[1] !== nextProps.size[1]
+      this.state.size[0] !== nextProps.size[0] ||
+      this.state.size[1] !== nextProps.size[1] ||
+      (!this.state.dataVersion &&
+        xyFrameChangeProps.find(d => {
+          return this.props[d] !== nextProps[d];
+        }))
     ) {
       this.calculateXYFrame(nextProps);
     }
@@ -178,7 +177,7 @@ class XYFrame extends React.Component {
       projectedPoints,
       projectedAreas,
       fullDataset,
-      lineType = "line",
+      lineType,
       customLineMark,
       customPointMark,
       areaStyle,
@@ -194,7 +193,7 @@ class XYFrame extends React.Component {
       canvasPoints,
       canvasAreas,
       defined,
-      size = [500, 500]
+      size
     } = currentProps;
 
     const xAccessor = stringToFn(currentProps.xAccessor);
@@ -456,7 +455,8 @@ class XYFrame extends React.Component {
       legendSettings,
       matte: marginGraphic,
       areaAnnotations,
-      xyFrameRender
+      xyFrameRender,
+      size
     });
   }
 
@@ -816,7 +816,7 @@ class XYFrame extends React.Component {
 
     let screenCoordinates = [];
 
-    const { size = [500, 500] } = this.props;
+    const { size } = this.props;
 
     const idAccessor = stringToFn(this.props.lineIDAccessor, l => l.id);
     const xCoord = d[projectedX] || xAccessor(d);
@@ -946,12 +946,12 @@ class XYFrame extends React.Component {
       lines,
       points,
       areas,
-      name = "xyframe",
+      name,
       download,
-      size = [500, 500],
-      className = "",
-      annotationSettings = {},
-      annotations = [],
+      size,
+      className,
+      annotationSettings,
+      annotations,
       additionalDefs,
       hoverAnnotation,
       interaction,
@@ -1021,13 +1021,7 @@ class XYFrame extends React.Component {
         adjustedPosition={adjustedPosition}
         size={size}
         extent={extent}
-        projectedCoordinateNames={{
-          y: projectedY,
-          x: projectedX,
-          yMiddle: projectedYMiddle,
-          yTop: projectedYTop,
-          yBottom: projectedYBottom
-        }}
+        projectedCoordinateNames={projectedCoordinateNames}
         xScale={xScale}
         yScale={yScale}
         axes={axes}
@@ -1043,7 +1037,13 @@ class XYFrame extends React.Component {
         hoverAnnotation={hoverAnnotation}
         defaultSVGRule={this.defaultXYSVGRule.bind(this)}
         defaultHTMLRule={this.defaultXYHTMLRule.bind(this)}
-        annotations={[...annotations, ...areaAnnotations]}
+        annotations={
+          areaAnnotations.length > 0 ? (
+            [...annotations, ...areaAnnotations]
+          ) : (
+            annotations
+          )
+        }
         annotationSettings={annotationSettings}
         legendSettings={legendSettings}
         projectedYMiddle={projectedYMiddle}

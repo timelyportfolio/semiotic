@@ -75,6 +75,10 @@ const customEdgeHashMutate = {
 }
 */
 
+import { networkFrameChangeProps } from "./constants/frame_props";
+
+const projectedCoordinateNames = { y: "y", x: "x" };
+
 function recursiveIDAccessor(idAccessor, node, accessorString) {
   if (node.parent) {
     accessorString = `${accessorString}-${recursiveIDAccessor(
@@ -215,6 +219,18 @@ const matrixify = ({
 };
 
 class NetworkFrame extends React.Component {
+  static defaultProps = {
+    annotations: [],
+    foregroundGraphics: [],
+    annotationSettings: {},
+    size: [500, 500],
+    className: "",
+    name: "networkframe",
+    edges: [],
+    nodes: [],
+    networkType: { type: "force", iterations: 500 }
+  };
+
   constructor(props) {
     super(props);
 
@@ -239,7 +255,8 @@ class NetworkFrame extends React.Component {
       projectedNodes: undefined,
       projectedEdges: undefined,
       renderNumber: 0,
-      voronoiHover: null
+      voronoiHover: null,
+      nodeLabelAnnotations: []
     };
 
     this.oAccessor = null;
@@ -253,7 +270,22 @@ class NetworkFrame extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.calculateNetworkFrame(nextProps);
+    if (
+      (this.state.dataVersion &&
+        this.state.dataVersion !== nextProps.dataVersion) ||
+      (!this.state.projectedNodes && !this.state.projectedEdges)
+    ) {
+      this.calculateNetworkFrame(nextProps);
+    } else if (
+      this.props.size[0] !== nextProps.size[0] ||
+      this.props.size[1] !== nextProps.size[1] ||
+      (!this.state.dataVersion &&
+        networkFrameChangeProps.find(d => {
+          return this.props[d] !== nextProps[d];
+        }))
+    ) {
+      this.calculateNetworkFrame(nextProps);
+    }
   }
 
   onNodeClick(d, i) {
@@ -276,10 +308,10 @@ class NetworkFrame extends React.Component {
 
   calculateNetworkFrame(currentProps) {
     const {
-      nodes = [],
-      edges = [],
-      networkType = { type: "force", iterations: 500 },
-      size = [500, 500],
+      nodes,
+      edges,
+      networkType,
+      size,
       nodeStyle,
       nodeClass,
       canvasNodes,
@@ -340,8 +372,8 @@ class NetworkFrame extends React.Component {
     const changedData =
       !this.state.projectedNodes ||
       !this.state.projectedEdges ||
-      this.graphSettings.numberOfNodes !== (nodes ? nodes.length : undefined) ||
-      edges.length !== this.graphSettings.numberOfEdges ||
+      this.graphSettings.nodes !== currentProps.nodes ||
+      this.graphSettings.edges !== currentProps.edges ||
       networkSettings.type === "dendrogram";
 
     if (changedData) {
@@ -961,9 +993,8 @@ class NetworkFrame extends React.Component {
       }
 
       this.graphSettings = networkSettings;
-      this.graphSettings.numberOfNodes = nodes.length;
-      this.graphSettings.numberOfEdges = edges.length;
-      this.graphSettings;
+      this.graphSettings.nodes = currentProps.nodes;
+      this.graphSettings.edges = currentProps.edges;
     }
 
     if (
@@ -1260,13 +1291,13 @@ class NetworkFrame extends React.Component {
 
   renderBody({ afterElements }) {
     const {
-      annotations = [],
-      annotationSettings = {},
-      className = "",
+      annotations,
+      annotationSettings,
+      className,
       customClickBehavior,
       customDoubleClickBehavior,
       customHoverBehavior,
-      size = [500, 500],
+      size,
       matte,
       renderKey,
       hoverAnnotation,
@@ -1284,7 +1315,7 @@ class NetworkFrame extends React.Component {
       adjustedPosition,
       adjustedSize,
       networkFrameRender,
-      nodeLabelAnnotations = []
+      nodeLabelAnnotations
     } = this.state;
 
     let downloadButton = [];
@@ -1340,7 +1371,7 @@ class NetworkFrame extends React.Component {
         finalFilterDefs={finalFilterDefs}
         frameKey={"none"}
         renderKeyFn={renderKey}
-        projectedCoordinateNames={{ y: "y", x: "x" }}
+        projectedCoordinateNames={projectedCoordinateNames}
         defaultSVGRule={this.defaultNetworkSVGRule.bind(this)}
         defaultHTMLRule={this.defaultNetworkHTMLRule.bind(this)}
         hoverAnnotation={hoverAnnotation}
@@ -1366,6 +1397,8 @@ class NetworkFrame extends React.Component {
 
 NetworkFrame.propTypes = {
   name: PropTypes.string,
+  nodes: PropTypes.array,
+  edges: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
   title: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   margin: PropTypes.oneOfType([PropTypes.number, PropTypes.object]),
   size: PropTypes.array,
@@ -1395,7 +1428,9 @@ NetworkFrame.propTypes = {
   edgeStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.func]),
   hoverAnnotation: PropTypes.bool,
   backgroundGraphics: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
-  foregroundGraphics: PropTypes.oneOfType([PropTypes.object, PropTypes.array])
+  foregroundGraphics: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  customNodeIcon: PropTypes.func,
+  edgeType: PropTypes.oneOfType([PropTypes.string, PropTypes.func])
 };
 
 export default NetworkFrame;
