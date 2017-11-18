@@ -67,7 +67,8 @@
     "tap-difflet": "0.4.0",
     "tap-notify": "1.0.0",
     "tape": "4.4.0",
-    "material-design-icons-svg": "1.1.2"
+    "material-design-icons-svg": "1.1.2",
+    "webpack": "3.8.1"
   },
   "peerDependencies": {
     "react": "^15.0.0 || ^16.0.0",
