@@ -15,10 +15,6 @@ body {
   color: black;
 }
 
-div#root {
-  margin-top: 60px;
-}
-
 .accent-font {
   font-family: "Monoton" !important;
 }
@@ -449,4 +445,19 @@ circle.frame-hover {
 
 .docs-example button {
   color: white;
+}
+
+.annotation text {
+  fill: #b10000;
+}
+
+.annotation path {
+  stroke: #b10000;
+  stroke-width: 1px;
+}
+
+.annotation path.connector-end {
+  fill: #b10000;
+  stroke-width: 1px;
+  stroke-dasharray: 0;
 }

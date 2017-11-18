@@ -8,7 +8,6 @@ import NetworkFrameDocs from "./components/NetworkFrameDocs";
 import AxisDocs from "./components/AxisDocs";
 import LegendDocs from "./components/LegendDocs";
 import DividedLineDocs from "./components/DividedLineDocs";
-import MarkDocs from "./components/MarkDocs";
 
 import { withStyles } from "material-ui/styles";
 import Divider from "material-ui/Divider";
@@ -36,9 +35,13 @@ import SwarmBrush from "./components/SwarmBrush";
 import LineBrush from "./components/LineBrush";
 import DivergingStackedBar from "./components/DivergingStackedBar";
 import DivergingStackedIsotype from "./components/DivergingStackedIsotype";
+import VerticalIsotype from "./components/VerticalIsotype";
 import Sankey from "./components/Sankey";
 import Chord from "./components/Chord";
 import Dendrogram from "./components/Dendrogram";
+import NegativeStacked from "./components/NegativeStacked";
+import CustomMark from "./components/CustomMark";
+
 //import Process from "./components/Process";
 import BarToParallel from "./components/BarToParallel";
 import AppleStockChart from "./components/AppleStockChart";
@@ -73,6 +76,7 @@ const components = {
   neighborhoodmap: { docs: NeighborhoodMap, parent: "xyframe" },
   realtimeline: { docs: RealtimeXYFrame, parent: "xyframe" },
   linebrush: { docs: LineBrush, parent: "xyframe" },
+  negativestacked: { docs: NegativeStacked, parent: "xyframe" },
   orframe: { docs: ORFrameDocs },
   violin: { docs: Violin, parent: "orframe" },
   parallelcoordinates: { docs: ParallelCoordinates, parent: "orframe" },
@@ -83,7 +87,9 @@ const components = {
   joyplot: { docs: JoyPlot, parent: "orframe" },
   swarmbrush: { docs: SwarmBrush, parent: "orframe" },
   divergingstackedbar: { docs: DivergingStackedBar, parent: "orframe" },
+  custommark: { docs: CustomMark, parent: "orframe" },
   divergingstackedisotype: { docs: DivergingStackedIsotype, parent: "orframe" },
+  verticalisotype: { docs: VerticalIsotype, parent: "orframe" },
   waterfall: { docs: WaterfallChart, parent: "orframe" },
   bullet: { docs: BulletChart, parent: "orframe" },
   realtimebar: { docs: RealtimeORFrame, parent: "orframe" },
@@ -92,7 +98,6 @@ const components = {
   sankey: { docs: Sankey, parent: "networkframe" },
   chord: { docs: Chord, parent: "networkframe" },
   dendrogram: { docs: Dendrogram, parent: "networkframe" },
-  mark: { docs: MarkDocs },
   axis: { docs: AxisDocs },
   legend: { docs: LegendDocs },
   dividedline: { docs: DividedLineDocs }
@@ -103,8 +108,8 @@ const drawerWidth = 240;
 const styles = theme => ({
   root: {
     width: "100%",
-    height: 430,
-    marginTop: theme.spacing.unit * 3,
+    height: "100%",
+    marginTop: 0,
     zIndex: 1,
     overflow: "hidden"
   },
@@ -176,7 +181,7 @@ const styles = theme => ({
   }
 });
 
-export default class Documentation extends React.Component {
+class Documentation extends React.Component {
   state = {
     open: false
   };
@@ -258,6 +263,8 @@ export default class Documentation extends React.Component {
       );
     }
 
+    const { AdditionalContent } = this.props;
+
     return (
       <div className={classes.root}>
         <div className={classes.appFrame}>
@@ -320,6 +327,7 @@ export default class Documentation extends React.Component {
               this.state.open && classes.contentShift
             )}
           >
+            {AdditionalContent ? <AdditionalContent /> : null}
             {selected === "examples" ? (
               <div className="row">
                 <div className="col-xs-8 col-xs-offset-2">{Examples}</div>
@@ -336,3 +344,5 @@ export default class Documentation extends React.Component {
     );
   }
 }
+
+export default withStyles(styles, { withTheme: true })(Documentation);

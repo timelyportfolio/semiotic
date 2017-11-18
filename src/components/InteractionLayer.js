@@ -1,8 +1,9 @@
 import React from "react";
 import { brushX, brushY, brush } from "d3-brush";
+import { extent } from "d3-array";
 import { event } from "d3-selection";
 import { voronoi } from "d3-voronoi";
-import Mark from "./Mark";
+import { Mark } from "semiotic-mark";
 
 // components
 import Brush from "./Brush";
@@ -28,16 +29,25 @@ class InteractionLayer extends React.Component {
     };
   }
 
-  changeVoronoi(d) {
+  changeVoronoi(d, customHoverTypes) {
     if (this.props.customHoverBehavior) {
       this.props.customHoverBehavior(d);
     }
     if (!d) {
       this.props.voronoiHover(null);
-    } else {
+    } else if (customHoverTypes === true) {
       let vorD = Object.assign({}, d);
       vorD.type = vorD.type === "column-hover" ? "column-hover" : "frame-hover";
       this.props.voronoiHover(vorD);
+    } else {
+      const arrayWrappedHoverTypes = Array.isArray(customHoverTypes)
+        ? customHoverTypes
+        : [customHoverTypes];
+      const mappedHoverTypes = arrayWrappedHoverTypes.map(c => {
+        const finalC = typeof c === "function" ? c(d) : c;
+        return Object.assign({}, d, finalC);
+      });
+      this.props.voronoiHover(mappedHoverTypes);
     }
   }
 
@@ -162,20 +172,6 @@ class InteractionLayer extends React.Component {
     } = props;
 
     if (points && props.hoverAnnotation && !overlay) {
-      let voronoiDiagram = voronoi()
-        .extent([
-          [
-            margin.left - interactionOverflow.left,
-            margin.top - interactionOverflow.top
-          ],
-          [
-            size[0] + margin.left + interactionOverflow.right,
-            size[1] + margin.top + interactionOverflow.bottom
-          ]
-        ])
-        .x(d => xScale(d[projectedX]))
-        .y(d => yScale(d[projectedYMiddle] || d[projectedY]));
-
       const voronoiDataset = [];
       const voronoiUniqueHash = {};
 
@@ -190,7 +186,11 @@ class InteractionLayer extends React.Component {
         ) {
           const pointKey = xValue + "," + yValue;
           if (!voronoiUniqueHash[pointKey]) {
-            const voronoiPoint = Object.assign(d, { coincidentPoints: [d] });
+            const voronoiPoint = Object.assign({}, d, {
+              coincidentPoints: [d],
+              voronoiX: xValue,
+              voronoiY: yValue
+            });
             voronoiDataset.push(voronoiPoint);
             voronoiUniqueHash[pointKey] = voronoiPoint;
           } else {
@@ -199,7 +199,41 @@ class InteractionLayer extends React.Component {
         }
       });
 
+      const voronoiXExtent = extent(voronoiDataset.map(d => d.voronoiX));
+      const voronoiYExtent = extent(voronoiDataset.map(d => d.voronoiY));
+
+      const voronoiExtent = [
+        [
+          Math.min(voronoiXExtent[0], margin.left - interactionOverflow.left),
+          Math.min(voronoiYExtent[0], margin.top - interactionOverflow.top)
+        ],
+        [
+          Math.max(
+            voronoiXExtent[1],
+            size[0] + margin.left + interactionOverflow.right
+          ),
+          Math.max(
+            voronoiXExtent[1],
+            size[1] + margin.top + interactionOverflow.bottom
+          )
+        ]
+      ];
+
+      let voronoiDiagram = voronoi()
+        .extent(voronoiExtent)
+        .x(d => d.voronoiX)
+        .y(d => d.voronoiY);
+
       const voronoiData = voronoiDiagram.polygons(voronoiDataset);
+      const voronoiLinks = voronoiDiagram.links(voronoiDataset);
+
+      //create neighbors
+      voronoiLinks.forEach(v => {
+        if (!v.source.neighbors) {
+          v.source.neighbors = [];
+        }
+        v.source.neighbors.push(v.target);
+      });
 
       voronoiPaths = voronoiData.map((d, i) => {
         return (
@@ -211,7 +245,7 @@ class InteractionLayer extends React.Component {
               this.doubleclickVoronoi(voronoiDataset[i]);
             }}
             onMouseEnter={() => {
-              this.changeVoronoi(voronoiDataset[i]);
+              this.changeVoronoi(voronoiDataset[i], props.hoverAnnotation);
             }}
             onMouseLeave={() => {
               this.changeVoronoi();
@@ -228,6 +262,7 @@ class InteractionLayer extends React.Component {
       const renderedOverlay = overlay.map(overlayRegion => {
         return (
           <Mark
+            forceUpdate={true}
             {...overlayRegion}
             onClick={() => {
               this.clickVoronoi(overlayRegion.onClick());
@@ -236,7 +271,10 @@ class InteractionLayer extends React.Component {
               this.doubleclickVoronoi(overlayRegion.onDoubleClick());
             }}
             onMouseEnter={() => {
-              this.changeVoronoi(overlayRegion.onMouseEnter());
+              this.changeVoronoi(
+                overlayRegion.onMouseEnter(),
+                props.hoverAnnotation
+              );
             }}
             onMouseLeave={() => {
               this.changeVoronoi();
