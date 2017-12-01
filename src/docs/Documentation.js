@@ -24,6 +24,7 @@ import BarLineDocs from "./components/BarLineDocs";
 import HeatMap from "./components/HeatMap";
 import Marimekko from "./components/Marimekko";
 import DotPlot from "./components/DotPlot";
+import DataSketchesPlot from "./components/DataSketchesPlot";
 import DonutChart from "./components/DonutChart";
 import JoyPlot from "./components/JoyPlot";
 import WaterfallChart from "./components/WaterfallChart";
@@ -33,6 +34,8 @@ import BaseballMap from "./components/BaseballMap";
 import WordCloud from "./components/WordCloud";
 import SwarmBrush from "./components/SwarmBrush";
 import LineBrush from "./components/LineBrush";
+import Minimap from "./components/Minimap";
+import Timeline from "./components/Timeline";
 import DivergingStackedBar from "./components/DivergingStackedBar";
 import DivergingStackedIsotype from "./components/DivergingStackedIsotype";
 import VerticalIsotype from "./components/VerticalIsotype";
@@ -75,11 +78,14 @@ const components = {
   homerunmap: { docs: BaseballMap, parent: "xyframe" },
   neighborhoodmap: { docs: NeighborhoodMap, parent: "xyframe" },
   realtimeline: { docs: RealtimeXYFrame, parent: "xyframe" },
+  minimap: { docs: Minimap, parent: "xyframe" },
   linebrush: { docs: LineBrush, parent: "xyframe" },
   negativestacked: { docs: NegativeStacked, parent: "xyframe" },
+  datasketches: { docs: DataSketchesPlot, parent: "xyframe" },
   orframe: { docs: ORFrameDocs },
   violin: { docs: Violin, parent: "orframe" },
   parallelcoordinates: { docs: ParallelCoordinates, parent: "orframe" },
+  timeline: { docs: Timeline, parent: "orframe" },
   heatmap: { docs: HeatMap, parent: "orframe" },
   marimekko: { docs: Marimekko, parent: "orframe" },
   dotplot: { docs: DotPlot, parent: "orframe" },

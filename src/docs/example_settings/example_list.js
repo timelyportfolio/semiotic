@@ -15,6 +15,7 @@ import SwarmBrushRaw from "../components/SwarmBrushRaw";
 import DivergingStackedBarRaw from "../components/DivergingStackedBarRaw";
 import ChordRaw from "../components/ChordRaw";
 import SankeyRaw from "../components/SankeyRaw";
+import MinimapRaw from "../components/MinimapRaw";
 import AppleStockChartRaw from "../components/AppleStockChartRaw";
 import BaseballMapRaw from "../components/BaseballMapRaw";
 import BulletChartRaw from "../components/BulletChartRaw";
@@ -23,6 +24,8 @@ import DivergingStackedIsotypeRaw from "../components/DivergingStackedIsotypeRaw
 import VerticalIsotypeRaw from "../components/VerticalIsotypeRaw";
 import NegativeStackedRaw from "../components/NegativeStackedRaw";
 import CustomMarkRaw from "../components/CustomMarkRaw";
+import DataSketchesPlotRaw from "../components/DataSketchesPlotRaw";
+import TimelineRaw from "../components/TimelineRaw";
 
 import {
   genericBarChart,
@@ -46,6 +49,7 @@ const exampos = [
     path: "homerunmap"
   },
   { label: "Bullet Chart", viz: BulletChartRaw, path: "bullet" },
+  { label: "Timeline", viz: TimelineRaw, path: "timeline" },
   { label: "Dendrogram", viz: DendrogramRaw({}), path: "dendrogram" },
   { label: "ISOTYPE 2", viz: VerticalIsotypeRaw, path: "verticalisotype" },
   {
@@ -54,6 +58,17 @@ const exampos = [
     path: "divergingstackedisotype"
   },
   { label: "Dot Plot", viz: DotPlotRaw, path: "dotplot" },
+  {
+    label: "Minimap Basics",
+    viz: MinimapRaw(() => {}, [10, 30], [10, 30]),
+    path: "minimap"
+  },
+  {
+    label: "Background Graphics",
+    viz: DataSketchesPlotRaw,
+    path: "datasketches"
+  },
+
   {
     label: "Neighborhood Map",
     viz: NeighborhoodMapRaw,
